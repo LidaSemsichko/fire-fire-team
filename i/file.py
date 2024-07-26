@@ -131,12 +131,18 @@ def main():
         return
     
     create_initial_platforms()
-    
+    score = 0
+    visited = []
     running = True
     game_over = False
     while running:
         screen.fill(WHITE)
-        
+        pygame.font.init() # you have to call this at the start, 
+        # if you want to use this module.
+        my_font = pygame.font.SysFont('Comic Sans MS', 30)
+        text_surface = my_font.render(str(score), False, (0, 0, 0))
+        screen.blit(text_surface, (0,0))
+
         if game_over:
             display_message("Ви програли!", RED, (WIDTH // 2, HEIGHT // 2 - 50))
             pygame.draw.rect(screen, BLUE, (WIDTH // 2 - 150, HEIGHT // 2 + 10, 300, 50))
@@ -169,11 +175,16 @@ def main():
 
             player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
             on_platform = False
+            
             for platform in platforms:
                 if player_rect.colliderect(platform['rect']) and player_velocity > 0:
                     player_velocity = -player_jump_speed
                     platform['sprung'] = True
                     on_platform = True
+                    if platform not in visited:
+                        score+=1
+                        visited.append(platform)
+                    print(score)
                     if platform['breakable'] and not platform['broken']:
                         break_platform(platform)
 
