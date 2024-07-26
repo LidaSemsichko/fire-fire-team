@@ -33,8 +33,8 @@ font = pygame.font.SysFont(None, 55)
 
 # Load player images
 player_images = [
-    pygame.transform.scale(pygame.image.load("player1.png"), (player_width, player_height)),
-    pygame.transform.scale(pygame.image.load("player2.png"), (player_width, player_height))
+    pygame.transform.scale(pygame.image.load("i/player1.png"), (player_width, player_height)),
+    pygame.transform.scale(pygame.image.load("i/player2.png"), (player_width, player_height))
 ]
 selected_player_image = None
 
