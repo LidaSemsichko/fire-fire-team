@@ -3,7 +3,7 @@ import random
 
 pygame.init()
 
-WIDTH, HEIGHT = 400, 600
+WIDTH, HEIGHT = 400, 500
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Doodle Jump")
 
@@ -16,7 +16,7 @@ GRAY = (169, 169, 169)
 player_width, player_height = 50, 50
 player_x, player_y = WIDTH // 2 - player_width // 2, HEIGHT - player_height - 10
 player_speed = 15
-player_jump_speed = 15
+player_jump_speed = 13
 gravity = 0.4
 player_velocity = 20
 
@@ -69,7 +69,7 @@ def draw_platform(platform):
         for part in platform['parts']:
             pygame.draw.rect(screen, GRAY, part, border_radius=corner_radius)
     else:
-        pygame.draw.rect(screen, BLACK, (platform['rect'].x, platform['rect'].y - platform['spring_offset'], platform['rect'].width, platform['rect'].height), border_radius=corner_radius)
+        pygame.draw.rect(screen, BLUE, (platform['rect'].x, platform['rect'].y - platform['spring_offset'], platform['rect'].width, platform['rect'].height), border_radius=corner_radius)
 
 def break_platform(platform):
     platform['broken'] = True
@@ -108,7 +108,7 @@ def character_selection_screen():
     running = True
     while running:
         screen.fill(WHITE)
-        display_message("Виберіть персонажа", BLACK, (WIDTH // 2, HEIGHT // 2 - 100))
+        display_message("Виберіть персонажа", BLUE, (WIDTH // 2, HEIGHT // 2 - 100))
         
         button1_rect = pygame.Rect(WIDTH // 4 - 50, HEIGHT // 2 - 50, 100, 100)
         button2_rect = pygame.Rect(3 * WIDTH // 4 - 50, HEIGHT // 2 - 50, 100, 100)
@@ -183,6 +183,7 @@ def main():
                     on_platform = True
                     if platform['breakable'] and not platform['broken']:
                         break_platform(platform)
+                        platforms.remove(platform)
 
             if player_y > HEIGHT:
                 game_over = True
