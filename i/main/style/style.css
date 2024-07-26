@@ -1,0 +1,63 @@
+body{
+    padding: 0;
+    margin: 0;
+    border:0;
+}
+.background{
+    width: 100%;
+    height: 5900px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.8;
+}
+.block-title{
+    margin: 0 auto;
+    width: 100%;
+    height: 960px;
+}
+.title{
+    position: relative;
+    top: 10px;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 370px;
+    text-align: center;
+    line-height: 320px;
+    color:#111111;
+    margin: 0 auto;
+    font-weight: 800;
+    padding-top: 150px ;
+}
+
+.game-block{
+    position: relative;
+    padding: 150px 380px 0 380px;
+
+}
+.game-title{
+    font-family: "Pixelify Sans", sans-serif;
+    font-size: 100px;
+    font-weight: 700;
+    line-height: 80px;
+    margin: 0;
+}
+.game-text{
+    font-family: "Pixelify Sans", sans-serif;
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 40px;
+}
+.game-img{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 100px;
+}
+.game-pl1{
+    margin-right: 40px;
+    width: 300px;
+}
+.game-pl2{
+    margin-left: 40px;
+    width: 300px;
+}
