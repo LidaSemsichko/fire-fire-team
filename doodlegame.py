@@ -27,16 +27,32 @@ corner_radius = 5
 min_distance = 90
 max_distance = 140
 spring_height = 15
-spring_recovery_speed = 10
+spring_recovery_speed = 10 
+with open('record.txt', 'r', encoding='UTF8') as file:
+    hey = file.read()
+    if hey:
+        RECORD = int(hey)
+    else:
+        RECORD = 0
 
 font = pygame.font.SysFont(None, 55)
 
-# Load player images
+# Load images
+menu_background_image = pygame.transform.scale(pygame.image.load("back3.png"), (WIDTH, HEIGHT))
+character_selection_background_image = pygame.transform.scale(pygame.image.load("back3.png"), (WIDTH, HEIGHT))
+background_images = {
+    "fire": pygame.transform.scale(pygame.image.load("back2.jpg"), (WIDTH, HEIGHT)),
+    "water": pygame.transform.scale(pygame.image.load("back.jpg"), (WIDTH, HEIGHT))
+}
 player_images = [
     pygame.transform.scale(pygame.image.load("fire.png"), (player_width, player_height)),
     pygame.transform.scale(pygame.image.load("water.png"), (player_width, player_height))
 ]
+play_button_image = pygame.transform.scale(pygame.image.load("play.png"), (200, 80))
+quit_button_image = pygame.transform.scale(pygame.image.load("neplay.png"), (200, 80))
+
 selected_player_image = None
+selected_background_image = None
 
 def create_platform(x, y, width=platform_width, height=platform_height, breakable=False):
     return {
@@ -64,12 +80,12 @@ def update_platform(platform):
         for part in platform['parts']:
             part.y += platform['part_speed']
 
-def draw_platform(platform):
+def draw_platform(platform, color):
     if platform['broken']:
         for part in platform['parts']:
             pygame.draw.rect(screen, GRAY, part, border_radius=corner_radius)
     else:
-        pygame.draw.rect(screen, BLUE, (platform['rect'].x, platform['rect'].y - platform['spring_offset'], platform['rect'].width, platform['rect'].height), border_radius=corner_radius)
+        pygame.draw.rect(screen, color, (platform['rect'].x, platform['rect'].y - platform['spring_offset'], platform['rect'].width, platform['rect'].height), border_radius=corner_radius)
 
 def break_platform(platform):
     platform['broken'] = True
@@ -83,16 +99,16 @@ def create_initial_platforms():
     platforms.clear()
     start_platform = create_platform(0, HEIGHT - platform_height, width=WIDTH)
     platforms.append(start_platform)
-    while len(platforms) < platform_count//2:
+    while len(platforms) < platform_count // 2:
         x = random.randint(0, WIDTH - platform_width)
-        y = random.randint(100, 300) 
+        y = random.randint(100, 300)
         breakable = random.choice([True, False])
         new_platform = create_platform(x, y, breakable=breakable)
         if not any(new_platform['rect'].colliderect(p['rect']) for p in platforms):
             platforms.append(new_platform)
     while len(platforms) < platform_count:
         x = random.randint(0, WIDTH - platform_width)
-        y = random.randint(300, 500) 
+        y = random.randint(300, 500)
         breakable = random.choice([True, False])
         new_platform = create_platform(x, y, breakable=breakable)
         if not any(new_platform['rect'].colliderect(p['rect']) for p in platforms):
@@ -104,10 +120,10 @@ def display_message(message, color, position):
     screen.blit(text, rect)
 
 def character_selection_screen():
-    global selected_player_image
+    global selected_player_image, selected_background_image
     running = True
     while running:
-        screen.fill(WHITE)
+        screen.blit(character_selection_background_image, (0, 0))
         display_message("Виберіть персонажа", BLUE, (WIDTH // 2, HEIGHT // 2 - 100))
         
         button1_rect = pygame.Rect(WIDTH // 4 - 50, HEIGHT // 2 - 50, 100, 100)
@@ -126,25 +142,70 @@ def character_selection_screen():
                 x, y = event.pos
                 if button1_rect.collidepoint(x, y):
                     selected_player_image = player_images[0]
+                    selected_background_image = background_images["fire"]
                     running = False
                 elif button2_rect.collidepoint(x, y):
                     selected_player_image = player_images[1]
+                    selected_background_image = background_images["water"]
                     running = False
     return True
 
+def start_menu():
+    running = True
+    while running:
+        screen.blit(menu_background_image, (0, 0))
+        display_message("Doodle Jump", BLUE, (WIDTH // 2, HEIGHT // 2 - 100))
+        
+        play_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 25, 200, 75)
+        quit_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 50, 200, 75)
+        
+        screen.blit(play_button_image, play_button_rect.topleft)
+        screen.blit(quit_button_image, quit_button_rect.topleft)
+        
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if play_button_rect.collidepoint(x, y):
+                    return True
+                elif quit_button_rect.collidepoint(x, y):
+                    pygame.quit()
+                    return False
+    return False
+
 def main():
-    global player_x, player_y, player_velocity, platforms
+    global player_x, player_y, player_velocity, platforms, RECORD
+    if not start_menu():
+        return
+    
     if not character_selection_screen():
         return
     
     create_initial_platforms()
-    
+    score = 0
+    visited = []
     running = True
     game_over = False
     while running:
-        screen.fill(WHITE)
-        
+        screen.blit(selected_background_image, (0, 0))
+        pygame.font.init() # you have to call this at the start, 
+        # if you want to use this module.
+        my_font = pygame.font.SysFont('Comic Sans MS', 30)
+        text_surface = my_font.render(str(score), False, (0, 0, 0))
+        line = 'Record: ' + str(RECORD)
+        text_record = my_font.render(line, False, (0, 0, 0))
+        screen.blit(text_surface, (0,0))
+        screen.blit(text_record, (0,30))
         if game_over:
+            if RECORD<score:
+                with open("record.txt", 'w', encoding='UTF8') as file:
+                    file.write(str(score))
+                RECORD = score
+            score = 0
             display_message("Ви програли!", RED, (WIDTH // 2, HEIGHT // 2 - 50))
             pygame.draw.rect(screen, BLUE, (WIDTH // 2 - 150, HEIGHT // 2 + 10, 300, 50))
             display_message("Грати знову", WHITE, (WIDTH // 2, HEIGHT // 2 + 35))
@@ -181,9 +242,12 @@ def main():
                     player_velocity = -player_jump_speed
                     platform['sprung'] = True
                     on_platform = True
+                    if platform not in visited:
+                        score+=1
+                        visited.append(platform)
+                    print(score)
                     if platform['breakable'] and not platform['broken']:
-                        break_platform(platform)
-                        platforms.remove(platform)
+                        break_platform(platform)    
 
             if player_y > HEIGHT:
                 game_over = True
@@ -202,9 +266,11 @@ def main():
                     if not any(new_platform['rect'].colliderect(p['rect']) for p in platforms):
                         platforms.append(new_platform)
 
+            platform_color = RED if selected_player_image == player_images[0] else BLUE
+
             for platform in platforms:
                 update_platform(platform)
-                draw_platform(platform)
+                draw_platform(platform, platform_color)
             
             screen.blit(selected_player_image, (player_x, player_y))
 
